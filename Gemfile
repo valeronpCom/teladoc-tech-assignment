@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
@@ -37,7 +39,7 @@ gem "redis", "~> 4.0"
 # gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
+gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -50,7 +52,8 @@ gem "bootsnap", require: false
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri mingw x64_mingw ]
+  gem "debug", platforms: %i[mri mingw x64_mingw]
+  gem 'pry-rails', '~> 0.3.9'
 end
 
 group :development do
@@ -69,4 +72,15 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem "webdrivers"
+
+  gem 'rails-controller-testing'
+  gem 'rspec', '~> 3.11.0'
+  gem 'rspec-rails', '~> 5.1.2'
+
+  gem 'factory_bot', '~> 6.2.1'
+  gem 'factory_bot_rails', '~> 6.2'
 end
+
+gem 'good_migrations', '~> 0.2.1'
+gem 'rubocop', '~> 1.28.0'
+gem 'simple_form', '~> 5.1.0'
