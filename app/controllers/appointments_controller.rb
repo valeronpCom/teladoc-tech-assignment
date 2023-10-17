@@ -24,7 +24,7 @@ class AppointmentsController < ApplicationController
         available_slots: free_slots
       }
     else
-      render json: { error: "Doctor's working hours not defined for today." }, status: :not_found
+      render json: { error: "Doctor's working hours not defined for that day." }, status: :not_found
     end
   end
 
