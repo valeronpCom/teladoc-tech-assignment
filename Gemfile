@@ -79,8 +79,10 @@ group :test do
 
   gem 'factory_bot', '~> 6.2.1'
   gem 'factory_bot_rails', '~> 6.2'
+  gem 'database_cleaner', '~> 2.0', '>= 2.0.1'
 end
 
 gem 'good_migrations', '~> 0.2.1'
 gem 'rubocop', '~> 1.28.0'
 gem 'simple_form', '~> 5.1.0'
+gem 'webmock'
