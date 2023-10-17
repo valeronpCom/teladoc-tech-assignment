@@ -1,7 +1,7 @@
 # README
 
 To run the application:
-* clone the repository using the command `git@github.com:valeronpCom/teladoc-tech-assignment.git`
+* clone the repository using the command `git clone git@github.com:valeronpCom/teladoc-tech-assignment.git`
 * go to the application folder using the command `cd teladoc-tech-assignment`
 * run these commands to setup everything
     * `gem install bundler`
