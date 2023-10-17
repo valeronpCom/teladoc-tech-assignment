@@ -6,13 +6,14 @@ RSpec.describe AppointmentsController, type: :controller do
   describe 'GET #index' do
     let(:doctor) { create(:doctor) }
     let(:working_hour) { create(:working_hour, doctor: doctor, day_of_week: Date.today.wday) }
+    let(:day_of_week) { 2 }
 
     before do
       [doctor, working_hour]
     end
 
     it 'returns a doctor\'s available hours and free slots' do
-      get :index, params: { doctor_id: doctor.id }
+      get :index, params: { doctor_id: doctor.id, day_of_week: day_of_week }
       expect(response).to have_http_status(:success)
       expect(assigns(:working_hours)).to_not be_nil
     end

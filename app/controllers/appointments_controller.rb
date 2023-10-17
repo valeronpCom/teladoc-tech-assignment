@@ -5,7 +5,7 @@ class AppointmentsController < ApplicationController
 
   # GET /doctors/:doctor_id/appointments
   def index
-    @working_hours = @doctor.working_hours.find_by(day_of_week: Time.zone.now.wday)
+    @working_hours = @doctor.working_hours.find_by(day_of_week: params[:day_of_week])
     if @working_hours
       start_time = @working_hours.start_time
       end_time = @working_hours.end_time
@@ -29,9 +29,10 @@ class AppointmentsController < ApplicationController
 
   # POST /doctors/:doctor_id/appointments/create
   def create
+    day_of_week = Time.zone.parse(appointment_params[:appointment_date]).wday
     requested_datetime = Time.zone.parse(appointment_params[:appointment_date])
     requested_time = round_to_nearest_30_minutes(requested_datetime)
-    if free_slots.include?(requested_time.strftime('%H:%M'))
+    if free_slots(day_of_week).include?(requested_time.strftime('%H:%M'))
       @appointment = @doctor.appointments.new(appointment_params)
       if @appointment.save
         render json: @appointment, status: :created
@@ -46,9 +47,10 @@ class AppointmentsController < ApplicationController
   # PATCH/PUT /doctors/:doctor_id/appointments/update/:id
   def update
     @appointment = @doctor.appointments.find(params[:id])
+    day_of_week = Time.zone.parse(appointment_params[:appointment_date]).wday
     requested_datetime = Time.zone.parse(appointment_params[:appointment_date])
     requested_time = round_to_nearest_30_minutes(requested_datetime)
-    if free_slots.include?(requested_time.strftime('%H:%M'))
+    if free_slots(day_of_week).include?(requested_time.strftime('%H:%M'))
       if @appointment.update(appointment_params)
         render json: @appointment
       else
@@ -100,8 +102,8 @@ class AppointmentsController < ApplicationController
     slots
   end
 
-  def free_slots
-    working_hours = @doctor.working_hours.find_by(day_of_week: Time.zone.now.wday)
+  def free_slots(day_of_week)
+    working_hours = @doctor.working_hours.find_by(day_of_week: day_of_week)
     return [] unless working_hours
 
     start_time = working_hours.start_time
