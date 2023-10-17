@@ -1,3 +1,4 @@
+<% branch = "#{`git rev-parse --symbolic-full-name --abbrev-ref HEAD --quiet 2>/dev/null`}".strip %>
 
 default: &default
   adapter: postgresql
@@ -9,11 +10,11 @@ default: &default
 
 development:
   <<: *default
-  database: "tech_assignment_dev"
+  database: <%= ["tech_assignment_dev", branch].join("_") %>
 
 test:
   <<: *default
-  database: "tech_assignment_test"
+  database: <%= ["tech_assignment_test", branch].join("_") %>
 
 production:
   <<: *default
