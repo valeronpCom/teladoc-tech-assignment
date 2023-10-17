@@ -3,7 +3,7 @@
 class AppointmentsController < ApplicationController
   before_action :set_doctor
 
-  # GET /doctors/:doctor_id/appointments
+  # GET /doctors/:doctor_id/appointments?day_of_week=number_of_the_day
   def index
     @working_hours = @doctor.working_hours.find_by(day_of_week: params[:day_of_week])
     if @working_hours
