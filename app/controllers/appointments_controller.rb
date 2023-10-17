@@ -6,6 +6,7 @@ class AppointmentsController < ApplicationController
   # GET /doctors/:doctor_id/appointments?day_of_week=number_of_the_day
   def index
     @working_hours = @doctor.working_hours.find_by(day_of_week: params[:day_of_week])
+    beginning_of_day, end_of_day = confirm_date(params[:day_of_week])
     if @working_hours
       start_time = @working_hours.start_time
       end_time = @working_hours.end_time
@@ -13,7 +14,7 @@ class AppointmentsController < ApplicationController
       all_slots = calculate_time_slots(start_time, end_time, 30.minutes)
       all_slots_formatted = all_slots.map { |time| time.strftime('%H:%M') }
 
-      booked_slots = @doctor.appointments.where(appointment_date: Date.today.beginning_of_day..Date.today.end_of_day).pluck(:appointment_date).map do |d|
+      booked_slots = @doctor.appointments.where(appointment_date: beginning_of_day..end_of_day).pluck(:appointment_date).map do |d|
         d.strftime('%H:%M')
       end
       free_slots = all_slots_formatted - booked_slots
@@ -102,8 +103,20 @@ class AppointmentsController < ApplicationController
     slots
   end
 
+  def confirm_date(day_of_week)
+    day_of_the_week = day_of_week.to_i
+    today = Date.today
+    days_until_target_day = today.wday - day_of_the_week
+    target_date = today - days_until_target_day.days
+
+    beginning_of_day = target_date.beginning_of_day
+    end_of_day = target_date.end_of_day
+    [beginning_of_day, end_of_day]
+  end
+
   def free_slots(day_of_week)
     working_hours = @doctor.working_hours.find_by(day_of_week: day_of_week)
+    beginning_of_day, end_of_day = confirm_date(day_of_week)
     return [] unless working_hours
 
     start_time = working_hours.start_time
@@ -112,7 +125,7 @@ class AppointmentsController < ApplicationController
     all_slots = calculate_time_slots(start_time, end_time, 30.minutes)
     all_slots_formatted = all_slots.map { |time| time.strftime('%H:%M') }
 
-    booked_slots = @doctor.appointments.where(appointment_date: Date.today.beginning_of_day..Date.today.end_of_day).pluck(:appointment_date).map do |d|
+    booked_slots = @doctor.appointments.where(appointment_date: beginning_of_day..end_of_day).pluck(:appointment_date).map do |d|
       d.strftime('%H:%M')
     end
     all_slots_formatted - booked_slots
