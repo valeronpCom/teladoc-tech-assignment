@@ -1,4 +1,5 @@
-# app/controllers/appointments_controller.rb
+# frozen_string_literal: true
+
 class AppointmentsController < ApplicationController
   before_action :set_doctor
 
@@ -10,20 +11,23 @@ class AppointmentsController < ApplicationController
       end_time = @working_hours.end_time
 
       all_slots = calculate_time_slots(start_time, end_time, 30.minutes)
+      all_slots_formatted = all_slots.map { |time| time.strftime('%H:%M') }
 
-      booked_slots = @doctor.appointments.where(appointment_date: Date.today.beginning_of_day..Date.today.end_of_day).pluck(:appointment_date).map { |d| d.hour }
-      free_slots = all_slots - booked_slots
+      booked_slots = @doctor.appointments.where(appointment_date: Date.today.beginning_of_day..Date.today.end_of_day).pluck(:appointment_date).map do |d|
+        d.strftime('%H:%M')
+      end
+      free_slots = all_slots_formatted - booked_slots
 
       render json: {
         working_hours: "#{start_time.strftime('%H:%M')}:00 - #{end_time.strftime('%H:%M')}:00",
-        available_slots: free_slots.map { |time| time.strftime('%H:%M') }
+        available_slots: free_slots
       }
     else
       render json: { error: "Doctor's working hours not defined for today." }, status: :not_found
     end
   end
 
-  # POST /doctors/:doctor_id/appointments/create_slot
+  # POST /doctors/:doctor_id/appointments/create
   def create
     requested_datetime = Time.zone.parse(appointment_params[:appointment_date])
     requested_time = round_to_nearest_30_minutes(requested_datetime)
@@ -39,7 +43,7 @@ class AppointmentsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /doctors/:doctor_id/appointments/update_slot/:id
+  # PATCH/PUT /doctors/:doctor_id/appointments/update/:id
   def update
     @appointment = @doctor.appointments.find(params[:id])
     requested_datetime = Time.zone.parse(appointment_params[:appointment_date])
@@ -57,6 +61,7 @@ class AppointmentsController < ApplicationController
 
   # DELETE /doctors/:doctor_id/appointments/:id
   def destroy
+    @appointment = @doctor.appointments.find(params[:id])
     @appointment.destroy
   end
 
@@ -71,7 +76,15 @@ class AppointmentsController < ApplicationController
   end
 
   def round_to_nearest_30_minutes(time)
-    minutes = (time.min % 30) >= 15 ? 30 : 0
+    minutes = time.min
+    if minutes < 15
+      minutes = 0
+    elsif minutes < 45
+      minutes = 30
+    else
+      minutes = 0
+      time = time.advance(hours: 1)
+    end
     time.change(min: minutes, sec: 0)
   end
 
@@ -95,8 +108,11 @@ class AppointmentsController < ApplicationController
     end_time = working_hours.end_time
 
     all_slots = calculate_time_slots(start_time, end_time, 30.minutes)
+    all_slots_formatted = all_slots.map { |time| time.strftime('%H:%M') }
 
-    booked_slots = @doctor.appointments.where(appointment_date: Date.today.beginning_of_day..Date.today.end_of_day).pluck(:appointment_date).map { |d| d.hour }
-    all_slots.map { |time| time.strftime('%H:%M') } - booked_slots.map { |hour| "#{hour}:00" }
+    booked_slots = @doctor.appointments.where(appointment_date: Date.today.beginning_of_day..Date.today.end_of_day).pluck(:appointment_date).map do |d|
+      d.strftime('%H:%M')
+    end
+    all_slots_formatted - booked_slots
   end
 end

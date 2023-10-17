@@ -3,8 +3,8 @@
 FactoryBot.define do
   factory :working_hour do
     day_of_week { 1 } # Example: Monday
-    start_time { '09:00' }
-    end_time { '17:00' }
+    start_time { '00:00' }
+    end_time { '23:59' }
     doctor
   end
 end
