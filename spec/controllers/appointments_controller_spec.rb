@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe AppointmentsController  do
+describe AppointmentsController do
   describe 'GET #index' do
     let(:doctor) { create(:doctor) }
     let(:working_hour) { create(:working_hour, doctor: doctor, day_of_week: Date.today.wday) }
@@ -22,6 +22,7 @@ describe AppointmentsController  do
   describe 'POST #create_slot' do
     let(:doctor) { create(:doctor) }
     let(:working_hour) { create(:working_hour, doctor: doctor, day_of_week: Date.today.wday) }
+    let(:working_hour2) { create(:working_hour, doctor: doctor, day_of_week: (DateTime.now + 1.day + 1.week).wday) }
     let(:patient) { create(:patient) }
     let(:appointment2) do
       create(:appointment, appointment_date: Time.current.change(hour: 12, min: 0, sec: 0).strftime('%Y-%m-%dT%H:%M:%S'), doctor: doctor,
@@ -29,11 +30,16 @@ describe AppointmentsController  do
     end
 
     before do
-      [doctor, working_hour, patient, appointment2]
+      [doctor, working_hour, working_hour2, patient, appointment2]
     end
 
     it 'creates a new appointment within available slots' do
       post :create, params: { doctor_id: doctor.id, appointment: { appointment_date: DateTime.now + 1.hour, patient_id: patient.id } }
+      expect(response).to have_http_status(:created)
+    end
+
+    it 'creates a new appointment within available slots at next week + 1 day' do
+      post :create, params: { doctor_id: doctor.id, appointment: { appointment_date: DateTime.now + 1.day + 1.week, patient_id: patient.id } }
       expect(response).to have_http_status(:created)
     end
 
