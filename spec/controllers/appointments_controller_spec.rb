@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AppointmentsController, type: :controller do
+describe AppointmentsController  do
   describe 'GET #index' do
     let(:doctor) { create(:doctor) }
     let(:working_hour) { create(:working_hour, doctor: doctor, day_of_week: Date.today.wday) }
@@ -23,7 +23,10 @@ RSpec.describe AppointmentsController, type: :controller do
     let(:doctor) { create(:doctor) }
     let(:working_hour) { create(:working_hour, doctor: doctor, day_of_week: Date.today.wday) }
     let(:patient) { create(:patient) }
-    let(:appointment2) { create(:appointment, appointment_date: "2023-10-17T12:00:00", doctor: doctor, patient_id: patient.id) }
+    let(:appointment2) do
+      create(:appointment, appointment_date: Time.current.change(hour: 12, min: 0, sec: 0).strftime('%Y-%m-%dT%H:%M:%S'), doctor: doctor,
+                           patient_id: patient.id)
+    end
 
     before do
       [doctor, working_hour, patient, appointment2]
@@ -35,7 +38,10 @@ RSpec.describe AppointmentsController, type: :controller do
     end
 
     it 'should lead to an error' do
-      post :create, params: { doctor_id: doctor.id, appointment: { appointment_date: "2023-10-17T12:00:00", patient_id: patient.id } }
+      post :create,
+           params: { doctor_id: doctor.id,
+                     appointment: { appointment_date: Time.current.change(hour: 12, min: 0, sec: 0).strftime('%Y-%m-%dT%H:%M:%S'),
+                                    patient_id: patient.id } }
       expect(JSON.parse(response.body)['error']).to eq("Requested time slot is not available")
     end
   end
