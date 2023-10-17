@@ -11,7 +11,7 @@ To run the application:
 
 Because it is an RESTful API, the application works in the following way:
 * to see doctor's working hours and availability you need to do the following GET request:
-  * `http://localhost:3000/doctors/:doctor_id/appointments?day_of_week=1`
+  * `http://localhost:3000/doctors/:doctor_id/appointments?day_of_week=number_of_the_day`
 * to make an appointment you should do the following POST request:
   * `http://localhost:3000/doctors/:doctor_id/appointments/` with following JSON data:
     * `{
